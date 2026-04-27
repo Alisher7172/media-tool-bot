@@ -21,9 +21,12 @@ class MediaJobPayload:
 
 
 def get_redis_client() -> redis.Redis:
+    redis_url = settings.REDIS_URL
+
     return redis.Redis.from_url(
-        settings.REDIS_URL,
+        redis_url,
         decode_responses=True,
+        ssl_cert_reqs=None if redis_url.startswith("rediss://") else "required",
     )
 
 
