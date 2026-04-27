@@ -11,8 +11,22 @@ class Base(DeclarativeBase):
     pass
 
 
+def _normalize_database_url(database_url: str) -> str:
+    """
+    Heroku may provide DATABASE_URL starting with postgres://.
+    SQLAlchemy needs postgresql+psycopg:// for our installed psycopg driver.
+    """
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql+psycopg://", 1)
+
+    if database_url.startswith("postgresql://"):
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+
+    return database_url
+
+
 engine = create_engine(
-    settings.DATABASE_URL,
+    _normalize_database_url(settings.DATABASE_URL),
     echo=False,
     pool_pre_ping=True,
 )
